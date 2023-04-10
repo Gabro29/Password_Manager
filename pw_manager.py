@@ -88,7 +88,6 @@ def ask_for_pw(self, controller):
     pw_entry.bind("<Return>", lambda x: check_pw(pw_window, controller))
     pw_entry.focus()
 
-    # Aggiungo i bottoni
     enter_button = Button(pw_window, text="Entra", command=lambda: check_pw(pw_window, controller),
                           fg="black", bg="Silver", relief="raised",
                           activebackground="sandy brown", font=("Spectral", 15))
@@ -106,7 +105,6 @@ class PW(Tk):
         self.resizable(1, 1)
         self.iconbitmap("icon.ico")
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
-        # Sovrappongo le Schermate e poi le mostro una alla volta
         container = Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
@@ -115,7 +113,6 @@ class PW(Tk):
         self.task(container)
 
     def task(self, container):
-        """Carica le Schermate"""
         global starting
 
         for Finestra in (Secret, MenuP):
@@ -123,19 +120,10 @@ class PW(Tk):
             frame = Finestra(parent=container, controller=self)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-        # Mostra il Menu all'inzio
         self.show_frame("MenuP")
-        # Non si è più al primo avvio
         starting = False
-        # Chiudo l'immagine di caricamento solo per il file .exe
-        try:
-            import pyi_splash
-            pyi_splash.close()
-        except ModuleNotFoundError:
-            pass
 
     def show_frame(self, page_name):
-        """Mostra la Schermata in base al nome"""
         if page_name == "MenuP":
             self.geometry("700x200")
         else:
@@ -172,34 +160,25 @@ class Secret(Frame):
         self.style = ThemedStyle(self)
         self.style.theme_use(f'{main_style}')
         self.removed_index = list()
-        # Nome Finestra
         self.controller = controller
         label = Label(self, text="Password Manager", font=("Spectral", 15), foreground="black", relief="ridge")
         label.pack(side="top", fill="x", pady=10)
-        # Bottone per tornare indietro
         button = Button(self, text="Back to Main Menu", command=lambda: self.back_to_menu(controller),
                         fg="black", bg="sandy brown", relief="raised",
                         activebackground="light gray", font=("Lucinda Console", 10))
         button.pack()
-        # Contenitore per tutti i widget
         self.container = LabelFrame(self)
         self.container.place(height=308, width=720, relx=0.05, rely=0.13)
-        # Tabs per la Gestione
         self.pw_tabs = ttk.Notebook(self.container)
-        # Creo gli alberi all'interno delle Tabs
         self.add_account = Frame(self.pw_tabs, width=740, height=308)  # , bg="#d9ead3")
         self.manage_account = Frame(self.pw_tabs, width=740, height=308)  # , bg="#d9ead3")
-        # Titoli, stile e posizione per le Tabs
         self.pw_tabs.add(self.add_account, text="ADD")
         self.pw_tabs.add(self.manage_account, text="MANAGE")
         self.pw_tabs.place(relx=0, rely=0)
         self.pw_tabs.bind("<<NotebookTabChanged>>", lambda x: self.change_tab_option(x))
 
-        # Aggiungo gli Alberi
         self.tree_add()
         self.tree_manage()
-
-        # Creo le caselle per l'immissione dei dati
         self.user_entry = Entry(self, font=("Lucinda Console", 15))
         self.user_entry.place(relx=0.05, rely=0.6, width=160, height=30)
 
@@ -210,7 +189,6 @@ class Secret(Frame):
         self.password_entry.place(relx=0.62, rely=0.6, width=180, height=30)
         self.password_entry.bind("<Return>", self.add_the_account)
 
-        # Aggiungo i bottoni
         self.add_button = Button(self, text="Add", command=lambda: Thread(target=self.add_the_account).start(),
                                  fg="black", bg="Silver", relief="raised",
                                  activebackground="light gray", font=("Times", 15))
@@ -238,12 +216,10 @@ class Secret(Frame):
         self.bind("<<ShowFrame>>", self.on_show_frame)
 
     def on_show_frame(self, parametro_fittizio):
-        """Task da effettuare ogni volta che viene richiamata la finestra"""
         if not starting:
             self.change_tab_option(parametro_fittizio)
 
     def change_tab_option(self, color):
-        """Cambia i colori delle Tabs in base a quella selezionata"""
         self.delete_entries()
         if self.pw_tabs.index("current") == 0:
             self.user_entry.focus()
@@ -271,14 +247,12 @@ class Secret(Frame):
             self.show_all_accounts()
 
     def back_to_menu(self, controller):
-        """Ritorna al menu principale"""
         global count_color_a
         count_color_a = 0
         self.delete_entries()
         controller.show_frame("MenuP")
 
     def delete_entries(self):
-        """Elimina tutte le righe degli Alberi"""
         try:
             for row in self.add_tree.get_children():
                 self.add_tree.delete(row)
@@ -317,9 +291,9 @@ class Secret(Frame):
                 self.clear_boxes()
                 self.user_entry.focus()
             elif self.user_entry.get() == "":
-                messagebox.showerror("Attenzione", "Non lasciare vuoto il campo Username!")
+                messagebox.showerror("Attention", "Do not leave blank the Username's field!")
             elif self.password_entry.get() == "":
-                messagebox.showerror("Attenzione", "Non lasciare vuoto il campo Password!")
+                messagebox.showerror("Attention", "Do not leave blank the Password's field!")
 
     def clear_boxes(self):
         self.user_entry.delete(0, END)
@@ -351,9 +325,9 @@ class Secret(Frame):
                     self.user_entry.get(), self.site_entry.get(), self.password_entry.get()))
                 self.clear_boxes()
             elif self.user_entry.get() == "":
-                messagebox.showerror("Attenzione", "Non lasciare vuoto il campo Username!")
+                messagebox.showerror("Attention", "Do not leave blank the Username's field!")
             elif self.password_entry.get() == "":
-                messagebox.showerror("Attenzione", "Non lasciare vuoto il campo Password!")
+                messagebox.showerror("Attention", "Do not leave blank the Password's field!")
         elif self.pw_tabs.index("current") == 1:
             if self.user_entry.get() != "" and self.password_entry.get() != "":
                 selected = self.manage_tree.focus()
@@ -361,12 +335,11 @@ class Secret(Frame):
                     self.user_entry.get(), self.site_entry.get(), self.password_entry.get()))
                 self.clear_boxes()
             elif self.user_entry.get() == "":
-                messagebox.showerror("Attenzione", "Non lasciare vuoto il campo Username!")
+                messagebox.showerror("Attention", "Do not leave blank the Username's field!")
             elif self.password_entry.get() == "":
-                messagebox.showerror("Attenzione", "Non lasciare vuoto il campo Password!")
+                messagebox.showerror("Attention", "Do not leave blank the Password's field!")
 
     def tree_add(self):
-        """Crea l'Albero per l'Aggiunta di Account"""
         tree_style = ttk.Style()
         tree_style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Lucinda Console', 16))
         tree_style.configure("mystyle.Treeview.Heading", font=('Spectral', 18, 'italic'), width=1, pady=20)
@@ -392,7 +365,6 @@ class Secret(Frame):
         self.add_tree.place(width=690, height=300, relx=0, rely=0)
 
     def tree_manage(self):
-        """Crea l'Albero per l'Aggiunta di Account"""
         tree_style = ttk.Style()
         tree_style.configure("mystyle.Treeview", highlightthickness=0, bd=0, font=('Lucinda Console', 16))
         tree_style.configure("mystyle.Treeview.Heading", font=('Spectral', 18, 'italic'), width=1, pady=20)
@@ -418,7 +390,6 @@ class Secret(Frame):
         self.manage_tree.place(width=690, height=300, relx=0, rely=0)
 
     def display_edit_person(self, parametro_fittizio):
-        """Riempie le caselle d'inserimento in base alla riga selezionata nell'albero"""
         self.clear_boxes()
         if self.pw_tabs.index("current") == 0:
             selected = self.add_tree.focus()
@@ -434,14 +405,12 @@ class Secret(Frame):
             self.password_entry.insert(0, selected_row[2])
 
     def show_all_accounts(self):
-        """Mostra tutti gli Account memorizzati"""
         global all_pass
         all_pass = read_encrypted(path='password.crypt', password=KEY)
         all_pass = all_pass[["Username", "Site", "Password"]]
         self.add_the_account(parametro_fittizio="MANAGE")
 
     def look_for(self, parametro_fittizio):
-        """Suggerimenti da tastiera per i Siti memorizzati"""
         global all_pass
         self.delete_entries()
         if self.search_entry.get() == '':
@@ -451,7 +420,6 @@ class Secret(Frame):
             self.add_the_account(parametro_fittizio="MANAGE")
 
     def save_to_csv(self):
-        """Salva le acquisizioni su File"""
         global all_pass
         data_on_the_tree = array([nan, nan, nan])
         all_pass = read_encrypted(path='password.crypt', password=KEY)
@@ -468,7 +436,7 @@ class Secret(Frame):
             all_pass = concat([all_pass, tree_data_frame_0])
             to_encrypted(all_pass.reset_index(), password=KEY, path="password.crypt")
             self.delete_entries()
-            messagebox.showinfo("Salvataggio Aggiunte", "Salvataggio Eseguito con successo!")
+            messagebox.showinfo("Saving Adds", "Saving Process Done!")
 
         elif self.pw_tabs.index("current") == 1:
             data_on_the_tree = array([nan, nan, nan])
@@ -482,9 +450,6 @@ class Secret(Frame):
             tree_data_frame.drop(index=0, inplace=True)
             tree_data_frame.reset_index(inplace=True, drop=True)
 
-            current_df = [[contatore, row[1].Username, row[1].Site, row[1].Password] for contatore, row in
-                          enumerate(all_pass.iterrows()) if self.search_entry.get().lower() in str(row[1].Site).lower()]
-            current_df = DataFrame(current_df, columns=["index", "Username", "Site", "Password"])
             for the_index, row in enumerate(all_pass.iterrows()):
                 # Remove rows
                 if f"{the_index}" in self.removed_index:
@@ -506,7 +471,7 @@ class Secret(Frame):
             self.delete_entries()
             self.removed_index.clear()
             self.search_entry.delete(0, END)
-            messagebox.showinfo("Salvataggio Modifiche", "Salvataggio Eseguito con successo!")
+            messagebox.showinfo("Saving Edits", "Saving Process Done!")
             self.show_all_accounts()
 
 
